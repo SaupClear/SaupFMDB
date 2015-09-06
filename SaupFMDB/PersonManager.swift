@@ -54,7 +54,7 @@ class PersonManager: NSObject {
             
             }
         }else{
-                print("Unable to open database")
+                print("Unable to open database!")
         
         }
     }
@@ -139,9 +139,7 @@ class PersonManager: NSObject {
 
 
     // MARK: >> 保证线程安全
-    
-    // TODO: 示例-增
-    
+    // TODO: 示例-增,查
     //FMDatabaseQueue这么设计的目的是让我们避免发生并发访问数据库的问题，因为对数据库的访问可能是随机的（在任何时候）、不同线程间（不同的网络回调等）的请求。内置一个Serial队列后，FMDatabaseQueue就变成线程安全了，所有的数据库访问都是同步执行，而且这比使用@synchronized或NSLock要高效得多。
     
     func safeaddPerson(p:Person){
@@ -154,16 +152,16 @@ class PersonManager: NSObject {
             //You can do something in here...
             db.open();
             
+            //增
             var arr:[AnyObject] = [p.pid!,p.name!,p.height!];
-            
+    
             if !self.dbBase.executeUpdate("insert into T_Person (pid ,name, height) values (?, ?, ?)", withArgumentsInArray: arr) {
                 println("添加1条数据失败！: \(db.lastErrorMessage())")
             }else{
                 println("添加1条数据成功！: \(p.pid)")
                 
             }
-            
-            
+            //查
             if let rs = db.executeQuery("select pid, name, height from T_Person", withArgumentsInArray: nil) {
                 while rs.next() {
                     let pid:Int32 = rs.intForColumn("pid") as Int32
@@ -177,7 +175,5 @@ class PersonManager: NSObject {
             db.close();
 
         }
-
     }
-
 }
